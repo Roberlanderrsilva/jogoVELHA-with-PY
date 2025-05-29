@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Velha com PyScript</title>
+    <!-- Incluindo PyScript -->
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        
+        h1 {
+            color: #333;
+        }
+        
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #tabuleiro {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            margin-bottom: 20px;
+            border: 2px solid #333;
+            background-color: #ccc;
+            /* Cor de fundo para o tabuleiro */
+        }
+        
+        .quadrado {
+            width: 100px;
+            height: 100px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px solid #999;
+            color: #333;
+            /* Cor inicial para os números/traços */
+        }
+        
+        .quadrado:hover {
+            background-color: #ddd;
+        }
+        /* Cores para X e O (serão aplicadas via Python/CSS) */
+        
+        .jogador-x {
+            color: green !important;
+        }
+        
+        .fundo-x {
+            background-color: green !important;
+            color: white !important;
+            /* Para melhor contraste no fundo verde */
+        }
+        
+        .jogador-o {
+            color: yellow !important;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            /* Contorno para amarelo */
+        }
+        
+        .fundo-o {
+            background-color: yellow !important;
+            color: black !important;
+            /* Para melhor contraste no fundo amarelo */
+        }
+        
+        .empate {
+            background-color: red !important;
+            color: white !important;
+            /* Para melhor contraste no fundo vermelho */
+        }
+        
+        #mensagem-velha {
+            font-size: 80px;
+            /* Tamanho da fonte para a mensagem de empate */
+            color: red;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+            /* Escondido inicialmente */
+        }
+        
+        .info {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Jogo da Velha com PyScript</h1>
+
+    <div id="game-container">
+        <div id="tabuleiro">
+            <div id="1" class="quadrado" py-click="lambda: escolher_quadrado(1)">1</div>
+            <div id="2" class="quadrado" py-click="lambda: escolher_quadrado(2)">2</div>
+            <div id="3" class="quadrado" py-click="lambda: escolher_quadrado(3)">3</div>
+            <div id="4" class="quadrado" py-click="lambda: escolher_quadrado(4)">4</div>
+            <div id="5" class="quadrado" py-click="lambda: escolher_quadrado(5)">5</div>
+            <div id="6" class="quadrado" py-click="lambda: escolher_quadrado(6)">6</div>
+            <div id="7" class="quadrado" py-click="lambda: escolher_quadrado(7)">7</div>
+            <div id="8" class="quadrado" py-click="lambda: escolher_quadrado(8)">8</div>
+            <div id="9" class="quadrado" py-click="lambda: escolher_quadrado(9)">9</div>
+        </div>
+
+        <div class="info">
+            Jogador Atual: <span id="jogador-atual">X</span>
+        </div>
+        <div class="info">
+            Vencedor: <span id="vencedor">Nenhum</span>
+        </div>
+        <div id="mensagem-velha">VELHOU ! , TENTEM OUTRA VEZ !</div>
+
+        <button py-click="reiniciar_jogo_py">Reiniciar Jogo</button>
+    </div>
+
+    <py-script>
+        from pyscript import document, window # Definições de jogadores (apenas símbolos, cores via CSS) JOGADOR_X = {'simbolo': 'X', 'classe_cor': 'jogador-x', 'classe_fundo': 'fundo-x'} JOGADOR_O = {'simbolo': 'O', 'classe_cor': 'jogador-o', 'classe_fundo':
+        'fundo-o'} CLASSE_EMPATE = 'empate' tabuleiro_logico = {i: str(i) for i in range(1, 10)} # Usar string para os números iniciais jogador_atual_logico = JOGADOR_X vencedor_logico = None jogo_terminou_logico = False def atualizar_display_tabuleiro():
+        for i in range(1, 10): quadrado_el = document.getElementById(str(i)) simbolo_atual = tabuleiro_logico[i] # Limpa classes de cor anteriores quadrado_el.classList.remove(JOGADOR_X['classe_cor'], JOGADOR_O['classe_cor'], JOGADOR_X['classe_fundo'],
+        JOGADOR_O['classe_fundo'], CLASSE_EMPATE) if simbolo_atual == JOGADOR_X['simbolo']: quadrado_el.innerText = JOGADOR_X['simbolo'] quadrado_el.classList.add(JOGADOR_X['classe_cor']) elif simbolo_atual == JOGADOR_O['simbolo']: quadrado_el.innerText
+        = JOGADOR_O['simbolo'] quadrado_el.classList.add(JOGADOR_O['classe_cor']) else: # Casa vazia ou número inicial quadrado_el.innerText = str(i) # Mostra o número da casa se vazia def atualizar_info_display(): document.getElementById("jogador-atual").innerText
+        = jogador_atual_logico['simbolo'] v_display = "Nenhum" if vencedor_logico: v_display = vencedor_logico elif jogo_terminou_logico and not vencedor_logico: # Empate v_display = "EMPATE!" document.getElementById("vencedor").innerText = v_display
+        def escolher_quadrado(posicao_int): global jogador_atual_logico, vencedor_logico, jogo_terminou_logico posicao = int(posicao_int) # Garantir que é int if jogo_terminou_logico or tabuleiro_logico[posicao] in [JOGADOR_X['simbolo'], JOGADOR_O['simbolo']]:
+        return # Jogo terminou ou quadrado ocupado tabuleiro_logico[posicao] = jogador_atual_logico['simbolo'] verificar_vencedor_py() verificar_empate_py() if not jogo_terminou_logico: jogador_atual_logico = JOGADOR_O if jogador_atual_logico == JOGADOR_X
+        else JOGADOR_X atualizar_display_tabuleiro() atualizar_info_display() if jogo_terminou_logico: aplicar_cores_finais() def verificar_vencedor_py(): global vencedor_logico, jogo_terminou_logico combinacoes_vitoria = [ [1, 2, 3], [4, 5, 6], [7, 8,
+        9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7] ] for combo in combinacoes_vitoria: if (tabuleiro_logico[combo[0]] == tabuleiro_logico[combo[1]] == tabuleiro_logico[combo[2]] and tabuleiro_logico[combo[0]] in [JOGADOR_X['simbolo'], JOGADOR_O['simbolo']]):
+        vencedor_logico = tabuleiro_logico[combo[0]] jogo_terminou_logico = True return def verificar_empate_py(): global jogo_terminou_logico # Verifica se todas as casas estão preenchidas e não há vencedor preenchidas = all(tabuleiro_logico[i] in [JOGADOR_X['simbolo'],
+        JOGADOR_O['simbolo']] for i in range(1,10)) if preenchidas and not vencedor_logico: jogo_terminou_logico = True def aplicar_cores_finais(): cor_fundo_classe = None if vencedor_logico == JOGADOR_X['simbolo']: cor_fundo_classe = JOGADOR_X['classe_fundo']
+        elif vencedor_logico == JOGADOR_O['simbolo']: cor_fundo_classe = JOGADOR_O['classe_fundo'] elif jogo_terminou_logico and not vencedor_logico: # Empate cor_fundo_classe = CLASSE_EMPATE document.getElementById("mensagem-velha").style.display = "block"
+        if cor_fundo_classe: for i in range(1, 10): quadrado_el = document.getElementById(str(i)) # Limpa classes de cor de jogador individual antes de aplicar a cor de fundo geral quadrado_el.classList.remove(JOGADOR_X['classe_cor'], JOGADOR_O['classe_cor'])
+        quadrado_el.classList.add(cor_fundo_classe) # Garante que o símbolo correto seja exibido mesmo com a cor de fundo if tabuleiro_logico[i] == JOGADOR_X['simbolo']: quadrado_el.innerText = JOGADOR_X['simbolo'] elif tabuleiro_logico[i] == JOGADOR_O['simbolo']:
+        quadrado_el.innerText = JOGADOR_O['simbolo'] # else: # Se for um número, deixa como está (não deveria acontecer em estado final com cor) # quadrado_el.innerText = str(i) def reiniciar_jogo_py(*args, **kwargs): # Adicionado *args, **kwargs para
+        compatibilidade com py-click global tabuleiro_logico, jogador_atual_logico, vencedor_logico, jogo_terminou_logico tabuleiro_logico = {i: str(i) for i in range(1, 10)} jogador_atual_logico = JOGADOR_X vencedor_logico = None jogo_terminou_logico
+        = False document.getElementById("mensagem-velha").style.display = "none" atualizar_display_tabuleiro() # Limpa os quadrados para os números # Após limpar, precisa garantir que os números apareçam com a cor padrão for i in range(1, 10): quadrado_el
+        = document.getElementById(str(i)) quadrado_el.innerText = str(i) # Redefine para o número da casa # Remove todas as classes de cor específicas de jogador ou estado final quadrado_el.classList.remove(JOGADOR_X['classe_cor'], JOGADOR_O['classe_cor'],
+        JOGADOR_X['classe_fundo'], JOGADOR_O['classe_fundo'], CLASSE_EMPATE) atualizar_info_display() # Inicialização do jogo atualizar_display_tabuleiro() atualizar_info_display() # Expor funções para o HTML window.escolher_quadrado = escolher_quadrado
+        window.reiniciar_jogo_py = reiniciar_jogo_py
+    </py-script>
+</body>
+
+</html>
